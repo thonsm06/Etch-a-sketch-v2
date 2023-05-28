@@ -29,21 +29,22 @@ button.addEventListener('click', mouse => {
         numberOfCells = newCellNumber;
         newGrid(numberOfCells);
     }
-},{once: true})
+})
 
 clearButton.addEventListener('click', mouse => {
     for(let i = 0; i < numberOfCells; i++) {
         for(let j = 0; j < numberOfCells; j++) {
+            drawing = false;
+            cells[i][j].setAttribute('toggle', 'false');
             cells[i][j].style.backgroundColor = 'white';
         }
     }
 })
 
-//cellContainer.addEventListener('mousedown', () => drawing = true);
-//cellContainer.addEventListener('mouseup', () => drawing = false);
 body.addEventListener('mouseup', () => drawing = false);
 function newGrid(num) {
     let cellSize = totalGridWidth / numberOfCells;
+    const alpha = 0.05;
     for(let i = 0; i < num; i++) {
         cells[i] = [];
         for(let j = 0; j < num; j++) {
@@ -51,14 +52,21 @@ function newGrid(num) {
             cells[i][j].classList.toggle('cell');
             cells[i][j].style.cssText = `border: 1px solid lightgrey; width: ${cellSize}px; height: ${cellSize}px; box-sizing: border-box; flex: 1 1 auto;`;
             cells[i][j].setAttribute('toggle', 'false');
+            cells[i][j].setAttribute('currentAlpha', '0.0');
             cells[i][j].addEventListener('mousedown', mouse => {
+                let ca = Number(cells[i][j].getAttribute('currentAlpha'));
+                ca += alpha;
+                cells[i][j].setAttribute('currentAlpha', `${ca}`);
                 drawing = true;
                 cells[i][j].setAttribute('toggle','true');
-                mouse.target.style.backgroundColor = 'black';
+                mouse.target.style.backgroundColor = `rgba(0, 0, 0, ${ca})`;
             })
             cells[i][j].addEventListener('mouseover', mouse => {
                 if (drawing === true) {
-                    mouse.target.style.backgroundColor = 'black';
+                    ca = Number(cells[i][j].getAttribute('currentAlpha'));
+                    ca += alpha;
+                    cells[i][j].setAttribute('currentAlpha', `${ca}`);
+                    mouse.target.style.backgroundColor = `rgba(0, 0, 0, ${ca})`;
                     cells[i][j].setAttribute('toggle', 'true');
                 }
                 else if (drawing === false && cells[i][j].getAttribute('toggle') === 'false'){
@@ -80,7 +88,6 @@ buttonContainer.appendChild(button);
 buttonContainer.appendChild(clearButton);
 body.appendChild(buttonContainer);
 body.appendChild(cellContainer);
-
 
 if (resetGrid === 1) {
     newGrid(numberOfCells);
