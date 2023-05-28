@@ -1,15 +1,22 @@
 const body = document.querySelector('body');
+const buttonContainer = document.createElement('div');
 const button = document.createElement('button');
+const clearButton = document.createElement('button');
 const cellContainer = document.createElement('div');
-let cells = [];
 const totalGridWidth = 960;
-let numberOfCells = 2; //to be changeble
+
+let cells = [];
+let numberOfCells = 16; //to be changeble
 let resetGrid = 1;
+let drawing = false;
+
+buttonContainer.classList.toggle('buttons');
+clearButton.classList.toggle('button');
 
 cellContainer.style.cssText = `display: flex; flex-wrap: wrap; width: ${totalGridWidth}px; height: ${totalGridWidth}px; border: 3px solid black;`;
 
 button.textContent = 'Change number of cell';
-
+clearButton.textContent = 'Clear board';
 
 button.addEventListener('click', mouse => {
     const newCellNumber = Number(prompt("Input a number up to 100"));
@@ -19,13 +26,22 @@ button.addEventListener('click', mouse => {
                 cells[i][j].remove();
             }
         }
-        cells = [];
         numberOfCells = newCellNumber;
         newGrid(numberOfCells);
     }
+},{once: true})
+
+clearButton.addEventListener('click', mouse => {
+    for(let i = 0; i < numberOfCells; i++) {
+        for(let j = 0; j < numberOfCells; j++) {
+            cells[i][j].style.backgroundColor = 'white';
+        }
+    }
 })
 
-
+//cellContainer.addEventListener('mousedown', () => drawing = true);
+//cellContainer.addEventListener('mouseup', () => drawing = false);
+body.addEventListener('mouseup', () => drawing = false);
 function newGrid(num) {
     let cellSize = totalGridWidth / numberOfCells;
     for(let i = 0; i < num; i++) {
@@ -34,18 +50,35 @@ function newGrid(num) {
             cells[i][j] = document.createElement('div');
             cells[i][j].classList.toggle('cell');
             cells[i][j].style.cssText = `border: 1px solid lightgrey; width: ${cellSize}px; height: ${cellSize}px; box-sizing: border-box; flex: 1 1 auto;`;
+            cells[i][j].setAttribute('toggle', 'false');
+            cells[i][j].addEventListener('mousedown', mouse => {
+                drawing = true;
+                cells[i][j].setAttribute('toggle','true');
+                mouse.target.style.backgroundColor = 'black';
+            })
             cells[i][j].addEventListener('mouseover', mouse => {
-                mouse.target.style.backgroundColor = 'grey';
+                if (drawing === true) {
+                    mouse.target.style.backgroundColor = 'black';
+                    cells[i][j].setAttribute('toggle', 'true');
+                }
+                else if (drawing === false && cells[i][j].getAttribute('toggle') === 'false'){
+                    mouse.target.style.backgroundColor = 'grey';
+                }
             })
             cells[i][j].addEventListener('mouseout', mouse => {
-                mouse.target.style.backgroundColor = 'white';
+                if (drawing === false && cells[i][j].getAttribute('toggle') === 'false')
+                {
+                    mouse.target.style.backgroundColor = 'white';
+                }
             })
             cellContainer.appendChild(cells[i][j]);
         }
     }
 }
 
-body.appendChild(button);
+buttonContainer.appendChild(button);
+buttonContainer.appendChild(clearButton);
+body.appendChild(buttonContainer);
 body.appendChild(cellContainer);
 
 
